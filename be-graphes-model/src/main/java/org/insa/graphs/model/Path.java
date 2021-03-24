@@ -18,6 +18,9 @@ import java.util.List;
  */
 public class Path {
 
+    //Je définis une macro INFINI
+    static int INFINI = 100000;
+
     /**
      * Create a new path that goes through the given list of nodes (in order),
      * choosing the fastest route if multiple are available.
@@ -30,12 +33,33 @@ public class Path {
      * @throws IllegalArgumentException If the list of nodes is not valid, i.e. two
      *         consecutive nodes in the list are not connected in the graph.
      * 
-     * @deprecated Need to be implemented.
      */
     public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
-        // TODO:
+
+        Arc bestArc;
+
+        //Je parcours tous les nodes de ma liste
+        for (int i = 0; i < nodes.size(); i++) {
+            //Je récupère le node et son suivant
+            Node node = nodes.get(i);
+            Node suiv = nodes.get(i+1);
+            bestArc = node.getSuccessors().get(0);
+            //Je parcours tous les chemins vers ses successeurs
+            for (Arc arc : node.getSuccessors()) {
+                //Si le successeur correspond bien au prochain node de ma liste
+                if (arc.getDestination() == suiv) {
+                    //Si la distance est plus courte
+                    if (arc.getMinimumTravelTime() < bestArc.getMinimumTravelTime()) {
+                        //Cette arc devient le meilleur arc
+                        bestArc = arc;
+                    }                    
+                }
+            }
+            //J'ajoute mon arc à mon chemin
+            arcs.add(bestArc);
+        } 
         return new Path(graph, arcs);
     }
 
@@ -51,12 +75,31 @@ public class Path {
      * @throws IllegalArgumentException If the list of nodes is not valid, i.e. two
      *         consecutive nodes in the list are not connected in the graph.
      * 
-     * @deprecated Need to be implemented.
      */
     public static Path createShortestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
-        // TODO:
+        Arc bestArc;
+        
+        //Je parcours tous les nodes de ma liste
+        for (int i = 0; i < nodes.size(); i++) {
+            //Je récupère le node et son suivant
+            Node node = nodes.get(i);
+            Node suiv = nodes.get(i+1);
+            bestArc = node.getSuccessors().get(0);
+            //Je parcours tous les chemins vers ses successeurs
+            for (Arc arc : node.getSuccessors()) {
+                //Si le successeur correspond bien au prochain node de ma liste
+                if (arc.getDestination() == suiv) {
+                    //Si l'arc est plus rapide
+                    if (arc.getLength() < bestArc.getLength()) {
+                        //Cette arc devient le meilleur arc
+                        bestArc = arc;
+                    }                    
+                }
+            }
+            arcs.add(bestArc);
+        } 
         return new Path(graph, arcs);
     }
 
@@ -198,11 +241,30 @@ public class Path {
      * 
      * @return true if the path is valid, false otherwise.
      * 
-     * @deprecated Need to be implemented.
      */
     public boolean isValid() {
-        // TODO:
-        return false;
+        //Si mon chemin est vide ou qu'il a qu'un arc, c'est bon
+        if (this.isEmpty() || this.size() == 1) {
+            return true;
+        }
+
+        //Si l'origine de mon premier noeud ne correspond pas à l'origine de mon chemin, c'est pas bon
+        if (this.arcs.get(0).getOrigin() != this.getOrigin()) { 
+            return false;
+        }
+        else {
+            //Je parcours tous mes arcs
+            for (int i = 0; i < this.arcs.size(); i++) {
+                //et pour chaque arc, je vérifie que la destination de l'arc i est l'origine de l'arc i+1
+                if (arcs.get(i).getDestination() != arcs.get(i+1).getOrigin()) {
+                    //si c'est pas le cas, je retourne faux
+                    return false;
+                }
+            }
+            //Si j'ai parcouru mon chemin sans problème, je retourne vrai
+            return true;
+        }
+
     }
 
     /**
