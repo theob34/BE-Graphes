@@ -36,31 +36,43 @@ public class Path {
      */
     public static Path createFastestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
-        List<Arc> arcs = new ArrayList<Arc>();
-
-        Arc bestArc;
-
-        //Je parcours tous les nodes de ma liste
-        for (int i = 0; i < nodes.size(); i++) {
-            //Je récupère le node et son suivant
-            Node node = nodes.get(i);
-            Node suiv = nodes.get(i+1);
-            bestArc = node.getSuccessors().get(0);
-            //Je parcours tous les chemins vers ses successeurs
-            for (Arc arc : node.getSuccessors()) {
-                //Si le successeur correspond bien au prochain node de ma liste
-                if (arc.getDestination() == suiv) {
-                    //Si la distance est plus courte
-                    if (arc.getMinimumTravelTime() < bestArc.getMinimumTravelTime()) {
-                        //Cette arc devient le meilleur arc
-                        bestArc = arc;
-                    }                    
+        
+        if (nodes.size() == 1) {
+            return new Path(graph, nodes.get(0));
+        }
+        else {
+            List<Arc> arcs = new ArrayList<Arc>();
+            Arc bestArc;
+            //Je parcours tous les nodes de ma liste
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                //Je récupère le node et son suivant
+                Node node = nodes.get(i);
+                Node suiv = nodes.get(i+1);
+                bestArc = node.getSuccessors().get(0);
+                boolean trouve = false;
+                //Je parcours tous les chemins vers ses successeurs
+                for (Arc arc : node.getSuccessors()) {
+                    //Si le successeur correspond bien au prochain node de ma liste
+                    if (arc.getDestination() == suiv) {
+                        //Si la distance est plus courte
+                        if (arc.getMinimumTravelTime() < bestArc.getMinimumTravelTime()) {
+                            //Cette arc devient le meilleur arc
+                            bestArc = arc;
+                        }    
+                        trouve = true;                
+                    }
                 }
+                if (trouve == false) {
+                    throw new IllegalArgumentException();
+                }
+                else {
+                    //J'ajoute mon arc à mon chemin
+                    System.out.println(bestArc.toString());
+                    arcs.add(bestArc);
+                }
+            } 
+            return new Path(graph, arcs);
             }
-            //J'ajoute mon arc à mon chemin
-            arcs.add(bestArc);
-        } 
-        return new Path(graph, arcs);
     }
 
     /**
@@ -78,29 +90,40 @@ public class Path {
      */
     public static Path createShortestPathFromNodes(Graph graph, List<Node> nodes)
             throws IllegalArgumentException {
-        List<Arc> arcs = new ArrayList<Arc>();
-        Arc bestArc;
-        
-        //Je parcours tous les nodes de ma liste
-        for (int i = 0; i < nodes.size(); i++) {
-            //Je récupère le node et son suivant
-            Node node = nodes.get(i);
-            Node suiv = nodes.get(i+1);
-            bestArc = node.getSuccessors().get(0);
-            //Je parcours tous les chemins vers ses successeurs
-            for (Arc arc : node.getSuccessors()) {
-                //Si le successeur correspond bien au prochain node de ma liste
-                if (arc.getDestination() == suiv) {
-                    //Si l'arc est plus rapide
-                    if (arc.getLength() < bestArc.getLength()) {
-                        //Cette arc devient le meilleur arc
-                        bestArc = arc;
-                    }                    
+        if (nodes.size() == 1){
+            return new Path(graph, nodes.get(0));
+        }
+        else {    
+            List<Arc> arcs = new ArrayList<Arc>();
+            Arc bestArc;
+            //Je parcours tous les nodes de ma liste
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                //Je récupère le node et son suivant
+                Node node = nodes.get(i);
+                Node suiv = nodes.get(i+1);
+                bestArc = node.getSuccessors().get(0);
+                boolean trouve = false;
+                //Je parcours tous les chemins vers ses successeurs
+                for (Arc arc : node.getSuccessors()) {
+                    //Si le successeur correspond bien au prochain node de ma liste
+                    if (arc.getDestination() == suiv) {
+                        //Si l'arc est plus rapide
+                        if (arc.getLength() < bestArc.getLength()) {
+                            //Cette arc devient le meilleur arc
+                            bestArc = arc;
+                        }       
+                        trouve = true;             
+                    }
                 }
-            }
-            arcs.add(bestArc);
-        } 
-        return new Path(graph, arcs);
+                if (trouve == false) {
+                    throw new IllegalArgumentException();
+                }
+                else {
+                    arcs.add(bestArc);
+                }
+            } 
+            return new Path(graph, arcs);
+        }
     }
 
     /**
@@ -254,7 +277,7 @@ public class Path {
         }
         else {
             //Je parcours tous mes arcs
-            for (int i = 0; i < this.arcs.size(); i++) {
+            for (int i = 0; i < this.arcs.size() - 1; i++) {
                 //et pour chaque arc, je vérifie que la destination de l'arc i est l'origine de l'arc i+1
                 if (arcs.get(i).getDestination() != arcs.get(i+1).getOrigin()) {
                     //si c'est pas le cas, je retourne faux
@@ -274,7 +297,7 @@ public class Path {
      * 
      */
     public float getLength() {
-        int length = 0;
+        float length = 0;
         for (Arc arc : this.arcs) {
             length += arc.getLength();
         }
