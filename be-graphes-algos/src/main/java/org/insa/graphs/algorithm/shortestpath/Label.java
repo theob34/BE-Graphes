@@ -34,25 +34,32 @@ public class Label {
         this.pere = pere;
     }
     
-    /*Retourne le cout du label*/
+    //Gette cout
     double getCost() {
         return this.cout;
     }
 
-    /*Affecte la valeur cout*/
+    //Setter cout
     void setCost(double cout) {
         this.cout = cout;
     }
 
+    //Getter marque
     boolean getMarque () {
         return this.marque;
     }
 
-    /*Met la marque à marque*/
+    //Setter marque
     void setMarque(boolean marque) {
         this.marque = marque;
     }
 
+    //Getter pere
+    Node getPere() {
+        return this.pere;
+    }
+
+    //Setter pere
     void setPere(Node pere) {
         this.pere = pere;
     }
