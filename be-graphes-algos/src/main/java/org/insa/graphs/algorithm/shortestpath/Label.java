@@ -34,7 +34,7 @@ public class Label {
         this.pere = pere;
     }
     
-    //Gette cout
+    //Getter cout
     double getCost() {
         return this.cout;
     }
