@@ -16,7 +16,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
     private final double INFINI = 10000000.0;//Double.POSITIVE_INFINITY;
 
     @Override
-    protected ShortestPathSolution doRun() {
+    protected ShortestPathSolution doRun() { 
 
         final ShortestPathData data = getInputData();
 
@@ -37,7 +37,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         nodeHeap.insert(labelList.get(sommet_initial.getId()));
 
         Label minTas;
-        while (!nodeHeap.isEmpty()) {
+        while ((!labelList.get(data.getDestination().getId()).marque) || (!nodeHeap.isEmpty())) {
             //On récupère le sommet et on le marque
             minTas = nodeHeap.deleteMin();
             minTas.setMarque(true);
@@ -65,33 +65,27 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
         }
 
-        /*Il faut finir d'implémenter la solution
-        Pour cela deux solutions :
-            - Soit on remplace pere (qui est node) par l'arc
-            - Soit on fait notre liste de Node en redescedant depuis GetDestination vers GetOrigin à l'aide de l'attribut pere et on utilise ensuite la methode CreateShortestPath implémentée au début 
-        */
+        ShortestPathSolution solution ;
 
-        List<Node> nodesSolution = new ArrayList<Node>() ;
-        Node node = data.getDestination() ;
-        System.out.println("destination : " + node.getId()) ;
-        nodesSolution.add(node);
-        node = labelList.get(node.getId()).getPere() ;
-
-        while (node != sommet_initial) {
-            System.out.println("node : " + node.getId()) ;
-            nodesSolution.add(0, node);
+        if (nodeHeap.isEmpty()) {
+            solution = new ShortestPathSolution(data, ShortestPathSolution.Status.INFEASIBLE);
+        } 
+        else {
+            List<Node> nodesSolution = new ArrayList<Node>() ;
+            Node node = data.getDestination() ;
+            nodesSolution.add(node);
             node = labelList.get(node.getId()).getPere() ;
-        }
-        System.out.println("sommet initial : " + sommet_initial.getId()) ;
-        nodesSolution.add(0, sommet_initial);
 
-        for (Node point : nodesSolution) {
-            System.out.println("point : " + point.getId()) ;
-        }
+            while (node != sommet_initial) {
+                nodesSolution.add(0, node);
+                node = labelList.get(node.getId()).getPere() ;
+            }
+            nodesSolution.add(0, sommet_initial);
 
-        Path pathFinal = Path.createShortestPathFromNodes(data.getGraph(), nodesSolution) ;
-        
-        ShortestPathSolution solution = new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, pathFinal);
+            Path pathFinal = Path.createShortestPathFromNodes(data.getGraph(), nodesSolution) ;
+            
+            solution = new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, pathFinal);
+        }
         return solution;
     }
 }

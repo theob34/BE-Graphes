@@ -48,7 +48,17 @@ public class Path {
                 //Je récupère le node et son suivant
                 Node node = nodes.get(i);
                 Node suiv = nodes.get(i+1);
-                bestArc = node.getSuccessors().get(0);
+                //Je récupère le premier chemin qui par de mon origine et arrive bien à ma destination
+                int j = 1 ;
+                bestArc = node.getSuccessors().get(0) ;
+                while (j < node.getSuccessors().size() && bestArc.getDestination() != suiv) {
+                    bestArc = node.getSuccessors().get(j);
+                    j++ ;
+                }
+                //S'il n'en existe pas, je lève une exception
+                if (bestArc.getDestination() != suiv) {
+                    throw new IllegalArgumentException() ;
+                }
                 boolean trouve = false;
                 //Je parcours tous les chemins vers ses successeurs
                 for (Arc arc : node.getSuccessors()) {
