@@ -141,9 +141,10 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
             throw new ElementNotFoundException(x);
         }
         int indexToRemove=0;
-        while(indexToRemove<this.currentSize && x.compareTo(this.array.get(indexToRemove))!=0){ 
-           indexToRemove++;
-        }
+        indexToRemove = this.array.indexOf(x) ;
+        //while(indexToRemove<this.currentSize && x.compareTo(this.array.get(indexToRemove))!=0){ 
+        //   indexToRemove++;
+        //}
         if (indexToRemove>=this.currentSize){
             throw new ElementNotFoundException(x);
         }

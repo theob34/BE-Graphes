@@ -2,7 +2,7 @@ package org.insa.graphs.algorithm.shortestpath;
 
 import org.insa.graphs.model.Node;
 
-public class Label {
+public class Label implements Comparable<Label> {
 
     private final double INFINI = 10000000.0;
 
@@ -32,6 +32,10 @@ public class Label {
         this.marque = marque;
         this.cout = cout;
         this.pere = pere;
+    }
+
+    Node getNode() {
+        return this.sommet_courant ;
     }
     
     //Getter cout
@@ -67,6 +71,11 @@ public class Label {
     /*Retourne vrai si le label est déjà marqué*/
     boolean isMarked(){
         return this.marque;
+    }
+
+    @Override
+    public int compareTo(Label other) {
+        return Double.compare(this.cout, other.getCost());
     }
 
 }

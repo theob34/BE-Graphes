@@ -13,17 +13,17 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         super(data);
     }
 
-    private final double INFINI = 10000000.0;
-
-    //on créer la liste qui va regrouper tous nos labels
-    List<Label> labelList = new ArrayList<Label>();
-
-    BinaryHeap<Node> nodeHeap = new BinaryHeap<Node>();
+    private final double INFINI = 10000000.0;//Double.POSITIVE_INFINITY;
 
     @Override
     protected ShortestPathSolution doRun() {
 
         final ShortestPathData data = getInputData();
+
+        //on crée la liste qui va regrouper tous nos labels
+        List<Label> labelList = new ArrayList<Label>();
+
+        BinaryHeap<Label> nodeHeap = new BinaryHeap<Label>();
 
         Node sommet_initial = data.getOrigin();
         
@@ -32,31 +32,33 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             labelList.add(node.getId(), new Label(node));
         }
 
-        //Je met le cout du sommet initial à 0 et je l'ajoute dans le tas
+        //Je mets le cout du sommet initial à 0 et je l'ajoute dans le tas
         labelList.get(sommet_initial.getId()).setCost(0);
-        nodeHeap.insert(sommet_initial);
+        nodeHeap.insert(labelList.get(sommet_initial.getId()));
 
-        Node minTas;
+        Label minTas;
         while (!nodeHeap.isEmpty()) {
             //On récupère le sommet et on le marque
             minTas = nodeHeap.deleteMin();
-            labelList.get(minTas.getId()).setMarque(true);
+            minTas.setMarque(true);
             //On récupère tous les successeurs
-            for (Arc arc : minTas.getSuccessors()) {
-                Label successor = labelList.get(arc.getDestination().getId());
-                //Si le successeur n'est pas marque alors je l'étudie
-                if (!successor.getMarque()) {
-                    //Si le cout est plus faible en passant par x alors je le met à jour
-                    if (successor.getCost() > labelList.get(minTas.getId()).getCost() + arc.getLength()) {
-                        //Si le successeur est déjà dans le tas, je le supprime (permet la mise à jour)
-                        if ((!successor.getMarque()) && (successor.getCost() != INFINI)) {
-                            nodeHeap.remove(successor.sommet_courant);
+            for (Arc arc : minTas.getNode().getSuccessors()) {
+                if (data.isAllowed(arc)) {
+                    Label successor = labelList.get(arc.getDestination().getId());
+                    //Si le successeur n'est pas marque alors je l'étudie
+                    if (!successor.getMarque()) {
+                        //Si le cout est plus faible en passant par x alors je le met à jour
+                        if (successor.getCost() > (minTas.getCost() + arc.getLength())) {
+                            //Si le successeur est déjà dans le tas, je le supprime (permet la mise à jour)
+                            if ((!successor.getMarque()) && (successor.getCost() != INFINI)) {
+                                nodeHeap.remove(successor);
+                            }
+                            //Je mets à jour le coût
+                            successor.setCost(minTas.getCost() + arc.getLength());
+                            //Je rajoute le successeur et définit son nouveau père
+                            nodeHeap.insert(successor);
+                            successor.setPere(minTas.getNode());
                         }
-                        //Je mets à jour le coût
-                        successor.setCost(labelList.get(minTas.getId()).getCost() + arc.getLength());
-                        //Je rajoute le successeur et définit son nouveau père
-                        nodeHeap.insert(successor.sommet_courant);
-                        successor.setPere(minTas);
                     }
                 }
             }
@@ -71,23 +73,25 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
         List<Node> nodesSolution = new ArrayList<Node>() ;
         Node node = data.getDestination() ;
+        System.out.println("destination : " + node.getId()) ;
         nodesSolution.add(node);
         node = labelList.get(node.getId()).getPere() ;
 
         while (node != sommet_initial) {
-            nodesSolution.add(1, node);
+            System.out.println("node : " + node.getId()) ;
+            nodesSolution.add(0, node);
             node = labelList.get(node.getId()).getPere() ;
         }
+        System.out.println("sommet initial : " + sommet_initial.getId()) ;
         nodesSolution.add(0, sommet_initial);
 
-        Path pathFinal = new Path(data.getGraph());
+        for (Node point : nodesSolution) {
+            System.out.println("point : " + point.getId()) ;
+        }
 
-        pathFinal = Path.createShortestPathFromNodes(data.getGraph(), nodesSolution) ;
-
+        Path pathFinal = Path.createShortestPathFromNodes(data.getGraph(), nodesSolution) ;
         
         ShortestPathSolution solution = new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, pathFinal);
         return solution;
     }
-
-
 }
