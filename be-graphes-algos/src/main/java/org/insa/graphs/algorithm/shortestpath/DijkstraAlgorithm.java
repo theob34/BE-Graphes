@@ -35,35 +35,56 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         //Je mets le cout du sommet initial à 0 et je l'ajoute dans le tas
         labelList.get(sommet_initial.getId()).setCost(0);
         nodeHeap.insert(labelList.get(sommet_initial.getId()));
+        notifyOriginProcessed(sommet_initial);
 
         Label minTas;
-        while ((!labelList.get(data.getDestination().getId()).marque) || (!nodeHeap.isEmpty())) {
+        while ((!labelList.get(data.getDestination().getId()).marque) && (!nodeHeap.isEmpty())) {
             //On récupère le sommet et on le marque
             minTas = nodeHeap.deleteMin();
             minTas.setMarque(true);
+            notifyNodeMarked(minTas.getNode());
             //On récupère tous les successeurs
             for (Arc arc : minTas.getNode().getSuccessors()) {
                 if (data.isAllowed(arc)) {
                     Label successor = labelList.get(arc.getDestination().getId());
+                    notifyNodeReached(successor.getNode());
                     //Si le successeur n'est pas marque alors je l'étudie
                     if (!successor.getMarque()) {
-                        //Si le cout est plus faible en passant par x alors je le met à jour
-                        if (successor.getCost() > (minTas.getCost() + arc.getLength())) {
-                            //Si le successeur est déjà dans le tas, je le supprime (permet la mise à jour)
-                            if ((!successor.getMarque()) && (successor.getCost() != INFINI)) {
-                                nodeHeap.remove(successor);
+                        //Si je cherche le plus court chemin, je compare les tailles
+                        if (data.getMode() == ShortestPathData.Mode.LENGTH) {
+                            //Si le cout est plus faible en passant par x alors je le met à jour
+                            if (successor.getCost() > (minTas.getCost() + arc.getLength())) {
+                                //Si le successeur est déjà dans le tas, je le supprime (permet la mise à jour)
+                                if ((!successor.getMarque()) && (successor.getCost() != INFINI)) {
+                                    nodeHeap.remove(successor);
+                                }
+                                //Je mets à jour le coût
+                                successor.setCost(minTas.getCost() + arc.getLength());
+                                //Je rajoute le successeur et définit son nouveau père
+                                nodeHeap.insert(successor);
+                                successor.setPere(minTas.getNode());
                             }
-                            //Je mets à jour le coût
-                            successor.setCost(minTas.getCost() + arc.getLength());
-                            //Je rajoute le successeur et définit son nouveau père
-                            nodeHeap.insert(successor);
-                            successor.setPere(minTas.getNode());
                         }
+                        else {
+                            //Si le cout est plus faible en passant par x alors je le met à jour
+                            if (successor.getCost() > (minTas.getCost() + arc.getMinimumTravelTime())) {
+                                //Si le successeur est déjà dans le tas, je le supprime (permet la mise à jour)
+                                if ((!successor.getMarque()) && (successor.getCost() != INFINI)) {
+                                    nodeHeap.remove(successor);
+                                }
+                                //Je mets à jour le coût
+                                successor.setCost(minTas.getCost() + arc.getMinimumTravelTime());
+                                //Je rajoute le successeur et définit son nouveau père
+                                nodeHeap.insert(successor);
+                                successor.setPere(minTas.getNode());
+                            }
+                        }                        
                     }
                 }
             }
 
         }
+        notifyDestinationReached(data.getDestination());
 
         ShortestPathSolution solution ;
 
@@ -82,8 +103,14 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             }
             nodesSolution.add(0, sommet_initial);
 
-            Path pathFinal = Path.createShortestPathFromNodes(data.getGraph(), nodesSolution) ;
-            
+            Path pathFinal ;
+
+            if (data.getMode() == ShortestPathData.Mode.LENGTH) {
+                pathFinal = Path.createShortestPathFromNodes(data.getGraph(), nodesSolution) ;
+            }
+            else {
+                pathFinal = Path.createFastestPathFromNodes(data.getGraph(), nodesSolution) ;
+            }
             solution = new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, pathFinal);
         }
         return solution;
