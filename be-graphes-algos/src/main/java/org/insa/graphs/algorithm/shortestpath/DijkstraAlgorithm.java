@@ -15,21 +15,38 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
     private final double INFINI = 10000000.0;//Double.POSITIVE_INFINITY;
 
+    protected List<Label> initLabelListShort() {
+        //on crée la liste qui va regrouper tous nos labels
+        List<Label> labelList = new ArrayList<Label>();
+
+        //Initialisation
+        for (Node node : data.getGraph().getNodes()) {
+            labelList.add(node.getId(), new Label(node));
+        }
+
+        return labelList ;
+    }
+
+    protected List<Label> initLabelListFast() {
+        return initLabelListShort() ;
+    }
+
     @Override
     protected ShortestPathSolution doRun() { 
 
         final ShortestPathData data = getInputData();
 
-        //on crée la liste qui va regrouper tous nos labels
-        List<Label> labelList = new ArrayList<Label>();
-
         BinaryHeap<Label> nodeHeap = new BinaryHeap<Label>();
 
         Node sommet_initial = data.getOrigin();
-        
-        //Initialisation
-        for (Node node : data.getGraph().getNodes()) {
-            labelList.add(node.getId(), new Label(node));
+
+        List<Label> labelList ;
+
+        if (data.getMode() == ShortestPathData.Mode.LENGTH) {
+            labelList = initLabelListShort() ;
+        }
+        else {
+            labelList = initLabelListFast() ;
         }
 
         //Je mets le cout du sommet initial à 0 et je l'ajoute dans le tas
@@ -115,4 +132,5 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         }
         return solution;
     }
+
 }
