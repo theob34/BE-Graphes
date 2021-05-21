@@ -356,4 +356,17 @@ public class Path {
         return travelTime;
     }
 
+    @Override
+    public String toString() {
+        String ret="Path : ";
+        if (this.isEmpty()){
+            return "Path vide";
+        }
+        ret+=(this.getOrigin().toString()+ " ");
+        for (Arc arc : this.arcs){
+            ret+=(arc.getDestination().toString() + " ");
+        }
+        return ret;
+    }
+
 }

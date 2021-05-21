@@ -1,6 +1,7 @@
 package org.insa.graphs.algorithm.shortestpath;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.insa.graphs.algorithm.utils.BinaryHeap;
@@ -35,6 +36,11 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
     protected ShortestPathSolution doRun() { 
 
         final ShortestPathData data = getInputData();
+
+        //Si le départ et l'arrivée sont le même node, alors je retourne un chemin avec seulement 1 node
+        if (data.getOrigin() == data.getDestination()) {
+            return new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, Path.createShortestPathFromNodes(data.getGraph(), Arrays.asList(data.getOrigin())));
+        }
 
         BinaryHeap<Label> nodeHeap = new BinaryHeap<Label>();
 
@@ -103,9 +109,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         }
         notifyDestinationReached(data.getDestination());
 
-        ShortestPathSolution solution ;
+        ShortestPathSolution solution = null ;
 
-        if (nodeHeap.isEmpty()) {
+        if ((!labelList.get(data.getDestination().getId()).marque)) {
             solution = new ShortestPathSolution(data, ShortestPathSolution.Status.INFEASIBLE);
         } 
         else {
@@ -113,7 +119,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             Node node = data.getDestination() ;
             nodesSolution.add(node);
             node = labelList.get(node.getId()).getPere() ;
-
             while (node != sommet_initial) {
                 nodesSolution.add(0, node);
                 node = labelList.get(node.getId()).getPere() ;
@@ -128,7 +133,12 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             else {
                 pathFinal = Path.createFastestPathFromNodes(data.getGraph(), nodesSolution) ;
             }
-            solution = new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, pathFinal);
+            //Je regarde si je dispose d'un chemin, ou seulement d'un Node auquel cas, mon algrithme n'a pas trouvé de chemin
+            if (!(pathFinal.size() < 1)) {
+                solution = new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, pathFinal);
+            }
+            System.out.println(pathFinal.toString());
+
         }
         return solution;
     }
