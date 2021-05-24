@@ -14,7 +14,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         super(data);
     }
 
-    private final double INFINI = 10000000.0;//Double.POSITIVE_INFINITY;
+    private final double INFINI = 10000000.0;
 
     protected List<Label> initLabelListShort() {
         //on crée la liste qui va regrouper tous nos labels
@@ -137,8 +137,6 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             if (!(pathFinal.size() < 1)) {
                 solution = new ShortestPathSolution(data, ShortestPathSolution.Status.OPTIMAL, pathFinal);
             }
-            System.out.println(pathFinal.toString());
-
         }
         return solution;
     }
